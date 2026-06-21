@@ -7,6 +7,27 @@ const int motor2pin2 = 5;
 const int motor2PWM  = 11;
 
 const int touchPin = 13;
+bool robotEnabled = false;
+int lastTouchState = LOW;
+
+
+bool checkTouch() {
+  int currentTouchState = digitalRead(touchPin);
+  bool toggled = false;
+
+  if (currentTouchState == HIGH && lastTouchState == LOW) {
+    robotEnabled = !robotEnabled;
+    toggled = true;
+    if (!robotEnabled) stop();
+    Serial.println(robotEnabled ? "Robot ON" : "Robot OFF");
+    delay(50); // debounce
+  }
+
+  lastTouchState = currentTouchState;
+  return toggled && !robotEnabled; // true = just turned off
+}
+
+
 
 void setup() {
   pinMode(motor1pin1, OUTPUT);
@@ -41,9 +62,7 @@ void stopMotors() {
 }
 
 void loop() {
-  if (digitalRead(touchPin) == HIGH) {
-    moveForward();
-  } else {
-    stopMotors();
-  }
+  
+  if (!robotEnabled) return;
+  moveForward();
 }
