@@ -1,10 +1,11 @@
 // ── Motor pins ───────────────────────────────────────────────
-const int motor1pin1 = 4;
-const int motor1pin2 = 5;
-const int motor1PWM  = 9;
-const int motor2pin1 = 6;
-const int motor2pin2 = 7;
-const int motor2PWM  = 10;
+const int motor1pin1 = 10;
+const int motor1pin2 = 9;
+const int motor1PWM  = 6;
+
+const int motor2pin1 = 3;
+const int motor2pin2 = 5;
+const int motor2PWM  = 11;
 
 
 
