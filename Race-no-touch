@@ -15,7 +15,6 @@ void setup() {
   pinMode(motor2pin2, OUTPUT);
   pinMode(motor2PWM,  OUTPUT);
 
-  pinMode(touchPin, INPUT);
 }
 
 void moveForward() {
