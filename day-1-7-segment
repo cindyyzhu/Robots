@@ -1,0 +1,30 @@
+#include <TM1637Display.h>
+
+#define CLK 2
+#define DIO 3
+
+TM1637Display display(CLK, DIO);
+
+void setup() {
+  display.setBrightness(5); // 0 (dim) to 7 (brightest)
+}
+
+void loop() {
+  // Show a number
+  display.showNumberDec(1234);
+  delay(2000);
+
+  // Number with leading zeros
+  display.showNumberDec(42, true); // shows 0042
+  delay(2000);
+
+  // Show time-style with colon (e.g. 12:34)
+  display.showNumberDecEx(1234, 0b01000000, true);
+  delay(2000);
+
+  // Simple counter demo
+  for (int i = 0; i <= 20; i++) {
+    display.showNumberDec(i);
+    delay(200);
+  }
+}
