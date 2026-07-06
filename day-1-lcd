@@ -1,0 +1,19 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Address is usually 0x27, sometimes 0x3F
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+  lcd.init();
+  lcd.backlight();
+
+  lcd.setCursor(0, 0);   // column 0, row 0
+  lcd.print("Hello, world!");
+  lcd.setCursor(0, 1);   // column 0, row 1
+  lcd.print("16x2 I2C LCD");
+}
+
+void loop() {
+  // nothing needed for a static message
+}
