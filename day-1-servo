@@ -2,7 +2,7 @@
 
 Servo myServo;
 
-const int servoPin = 6;
+const int servoPin = 9;
 
 void setup() {
   myServo.attach(servoPin);
