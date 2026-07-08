@@ -1,0 +1,165 @@
+/*
+ * Robotic Hand Controller — Arduino Sketch
+ * ==========================================
+ *
+ * Protocol
+ * --------
+ *   • Baud rate  : 9600
+ *   • Message    : plain text label + '\n'  (e.g. "fist\n", "peace\n")
+ *   • The web app sends the Teachable Machine class name exactly as typed.
+ *
+ * Wiring
+ * ------
+ *   Servo  Finger   Pin
+ *   -----  ------   ---
+ *     0    Thumb     9
+ *     1    Index    10
+ *     2    Middle   11
+ *     3    Ring     12
+ *     4    Pinky    13
+ *
+ *   • All servos share GND and 5 V (use an external 5 V / ≥2 A supply for
+ *     5 servos — the Arduino's on-board regulator cannot supply enough current).
+ *   • Signal wire → Arduino digital pin.
+ *
+ * Angle convention
+ * ----------------------------------------
+ *   0°   = finger OPEN  (string slack)
+ *   180° = finger CLOSED (string fully pulled)
+ *
+ * Adding / editing poses
+ * -----------------------
+ *   Edit the POSES[] array below.  Each entry is:
+ *     { "label", {thumb, index, middle, ring, pinky} }
+ *   Labels are compared case-insensitively.
+ */
+
+#include <Servo.h> // DO NOT REMOVE THIS!!!!
+
+// ── Pin assignments ──────────────────────────────────────────────────────────
+static const uint8_t SERVO_PINS[5] = { 9, 10, 11, 12, 13 }; // DO NOT EDIT THIS LINE!!!
+
+// ── Pose table ───────────────────────────────────────────────────────────────
+struct Pose { 
+  const char* label;          // Teachable Machine class name (case-insensitive)
+  uint8_t     angles[5];      // {Thumb, Index, Middle, Ring, Pinky}
+}; 
+
+static const Pose POSES[] = {  // YOU CAN EDIT THIS SECTION !!!!
+  // label          Thumb  Index  Middle  Ring   Pinky
+  { "palm",       {   0,     0,     0,     0,     0  } },
+  { "open",       {   0,     0,     0,     0,     0  } },
+  { "fist",       { 180,   180,   180,   180,   180  } },
+  { "face",       { 180,   180,   180,   180,   180  } },
+  { "peace",      { 180,     0,     0,   180,   180  } },
+  { "ok",         {   0,   180,   180,   180,     0  } },
+  { "point",      { 180,     0,   180,   180,   180  } },
+  { "gun",        {   0,     0,   180,   180,   180  } },
+  { "rock",       { 180,   180,   180,   180,   180  } },
+  { "three",      { 180,     0,     0,     0,   180  } },
+  { "four",       { 180,     0,     0,     0,     0  } },
+  { "thumbs up",  {   0,   180,   180,   180,   180  } },
+  { "thumbsup",   {   0,   180,   180,   180,   180  } },
+  { "thumbs down",{ 180,     0,   180,   180,   180  } },
+};
+
+static const uint8_t NUM_POSES = sizeof(POSES) / sizeof(POSES[0]);
+
+// ── Fallback when no pose matches ────────────────────────────────────────────
+// DO NOT EDIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! BELOW THIS LINE _____________________________________
+static const uint8_t DEFAULT_ANGLES[5] = { 0, 0, 0, 0, 0 };  // all open
+
+// ── Globals ──────────────────────────────────────────────────────────────────
+// DO NOT EDIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Servo  servos[5];
+String inputBuffer = "";
+uint8_t currentAngles[5] = { 0, 0, 0, 0, 0 };
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+// DO NOT EDIT !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// In-place ASCII to lower-case
+void strToLower(String& s) {
+  for (int i = 0; i < (int)s.length(); i++) {
+    s[i] = tolower((unsigned char)s[i]);
+  }
+}
+
+// Apply an angle array to all servos
+void applyAngles(const uint8_t angles[5]) {
+  for (uint8_t i = 0; i < 5; i++) {
+    uint8_t a = constrain(angles[i], 0, 180);
+    if (a != currentAngles[i]) {
+      servos[i].write(a);
+      currentAngles[i] = a;
+    }
+  }
+}
+
+// Look up label and drive servos; echo result back over Serial
+// DO NOT EDIT!!!!!!! ________________________________
+void handleLabel(String label) {
+  label.trim();
+  strToLower(label);
+
+  if (label.length() == 0) return;
+
+  for (uint8_t p = 0; p < NUM_POSES; p++) {
+    String poseName = String(POSES[p].label);
+    strToLower(poseName);
+    if (label == poseName) {
+      applyAngles(POSES[p].angles);
+      Serial.print("OK ");
+      Serial.print(POSES[p].label);
+      Serial.print(" [");
+      for (uint8_t i = 0; i < 5; i++) {
+        Serial.print(POSES[p].angles[i]);
+        if (i < 4) Serial.print(",");
+      }
+      Serial.println("]");
+      return;
+    }
+  }
+
+  // No match — apply default (all open) and report unknown
+  applyAngles(DEFAULT_ANGLES);
+  Serial.print("UNKNOWN \"");
+  Serial.print(label);
+  Serial.println("\" — defaulting to all-open");
+}
+
+// ── setup / loop ─────────────────────────────────────────────────────────────
+// DO NOT EDIT BELOW THIS LINE _______________________________________________________
+// !!!!!
+
+void setup() {
+  Serial.begin(9600);
+
+  // Attach servos and move to default (open) position
+  for (uint8_t i = 0; i < 5; i++) {
+    servos[i].attach(SERVO_PINS[i]);
+    servos[i].write(DEFAULT_ANGLES[i]);
+    currentAngles[i] = DEFAULT_ANGLES[i];
+  }
+
+  Serial.println("Robotic Hand Controller ready — send a pose label.");
+}
+
+void loop() {
+  // Read serial one character at a time; process on newline
+  while (Serial.available()) {
+    char c = (char)Serial.read();
+    if (c == '\n' || c == '\r') {
+      if (inputBuffer.length() > 0) {
+        handleLabel(inputBuffer);
+        inputBuffer = "";
+      }
+    } else {
+      inputBuffer += c;
+      // Guard against garbage flooding the buffer
+      if (inputBuffer.length() > 64) {
+        inputBuffer = "";
+      }
+    }
+  }
+}
