@@ -7,7 +7,7 @@ int in3 = 5;
 int in4 = 4;
 
 // Infrared sensor
-const int IR = A0;
+const int IR = 3;
 
 // Motor Forward Function
 void motor_forward(){
@@ -34,13 +34,6 @@ void motor_right(){
   digitalWrite(in4, LOW);
 }
 
-// IR Helper Functions
-float get_distance(){
-  int raw_value = analogRead(IR);
-  float voltage = raw_value * (5.0/1023.0);
-  return (13.0 * pow(voltage, -1));
-}
-
 // Motor backwards Function
 void motor_backward(){
   digitalWrite(in1, LOW);
@@ -55,15 +48,15 @@ void setup() {
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
-
+  pinMode(IR, INPUT);
   Serial.begin(9600);
 }
 
 void loop() {
   motor_right();
   delay(100);
-  int distance = get_distance();
-  if (distance < 40){
+  int sensor_state = digitalRead(IR);
+  if(sensor_state == HIGH){
     motor_forward();
   }
   delay(100);
