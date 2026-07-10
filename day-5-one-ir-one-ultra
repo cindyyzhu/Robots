@@ -7,7 +7,7 @@ int in3 = 6;
 int in4 = 7;
 
 // Infrared sensor (digital output)
-const int IR = A0;
+const int IR = 3;
 
 // Ultrasonic sensor 
 const int TRIG_PIN = 12;
