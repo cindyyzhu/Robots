@@ -1,0 +1,126 @@
+/*
+ *  - Both sensors detect  -> opponent is dead ahead, charge forward
+ *  - Only LEFT detects    -> turn left toward the opponent
+ *  - Only RIGHT detects   -> turn right toward the opponent
+ *  - Neither detects      -> spin right to search
+ */
+
+// Motor A Connections
+int in1 = 7;
+int in2 = 6;
+
+// Motor B Connections
+int in3 = 5;
+int in4 = 4;
+
+// Left ultrasonic sensor
+const int TRIG_LEFT = 12;
+const int ECHO_LEFT = 11;
+
+// Right ultrasonic sensor
+const int TRIG_RIGHT = 3;
+const int ECHO_RIGHT = 2;
+
+// Detection range in cm (tune for your ring size)
+const int DETECT_DISTANCE_CM = 40;
+
+// Motor Forward Function
+void motor_forward(){
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+}
+
+// Motor Stop Function
+void motor_stop(){
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+// Motor right Function (motor A on, motor B off -> arcs right)
+void motor_right(){
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+// Motor left Function (motor B on, motor A off -> arcs left)
+void motor_left(){
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+}
+
+// Motor backwards Function
+void motor_backward(){
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+}
+
+// Ultrasonic Helper Function - returns distance in cm (999 if no echo)
+float get_ultrasonic_distance(int trigPin, int echoPin){
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH, 25000);  // 25ms timeout keeps loop fast
+  if (duration == 0) return 999;                   // no echo -> nothing detected
+
+  return duration * 0.034 / 2.0;
+}
+
+void setup() {
+  // Set all the motor control pins to outputs
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  // Sensor pins
+  pinMode(TRIG_LEFT, OUTPUT);
+  pinMode(ECHO_LEFT, INPUT);
+  pinMode(TRIG_RIGHT, OUTPUT);
+  pinMode(ECHO_RIGHT, INPUT);
+
+  Serial.begin(9600);
+
+  // Sumo rules usually require a 5 second start delay
+  delay(5000);
+}
+
+void loop() {
+  // Read sensors one after the other (a small gap prevents
+  // one sensor's ping from being picked up by the other)
+  float left_dist = get_ultrasonic_distance(TRIG_LEFT, ECHO_LEFT);
+  delay(10);
+  float right_dist = get_ultrasonic_distance(TRIG_RIGHT, ECHO_RIGHT);
+
+  bool left_seen  = (left_dist  < DETECT_DISTANCE_CM);
+  bool right_seen = (right_dist < DETECT_DISTANCE_CM);
+
+  Serial.print("Left: ");
+  Serial.print(left_dist);
+  Serial.print(" cm | Right: ");
+  Serial.print(right_dist);
+  Serial.println(" cm");
+
+  if (left_seen && right_seen) {
+    motor_forward();      // Opponent dead ahead - charge!
+  } else if (left_seen) {
+    motor_left();         // Opponent to the left - turn into it
+  } else if (right_seen) {
+    motor_right();        // Opponent to the right - turn into it
+  } else {
+    motor_right();        // Nothing seen - spin to search
+  }
+
+  delay(40);
+}
