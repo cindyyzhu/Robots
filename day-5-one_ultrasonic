@@ -7,14 +7,6 @@ int in2 = 6;
 // Motor B Connections
 int in3 = 5;
 int in4 = 4;
-
-// Motor status
-int motor_running = 0;
-bool last_touch_state = LOW;
-
-// Touch sensor
-int touch_pin = 3;
-
 // Ultrasonic sensor 
 int trig_pin = 11;
 int echo_pin = 12;
@@ -31,6 +23,14 @@ void motor_forward(){
 // Motor Stop Function
 void motor_stop(){
   digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+// Motor right Function
+void motor_right(){
+  digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
@@ -66,45 +66,16 @@ void setup() {
   pinMode(in4, OUTPUT);
 
   Serial.begin(9600);
-  pinMode(IR, INPUT); // Digital Pin
-  pinMode(touch_pin, INPUT);
   pinMode(trig_pin, OUTPUT);
   pinMode(echo_pin, INPUT);
 }
 
 void loop() {
-  int touch_val = digitalRead(touch_pin);
-
-  // 1. Toggle Logic (Keep your existing switch)
-  if (touch_val == HIGH && last_touch_state == LOW) {
-    motor_running = !motor_running;
-    delay(200); // Increased debounce for stability
+  motor_right();
+  delay(100);
+  int distance = get_distance();
+  if (distance < 40){
+    motor_forward();
   }
-  last_touch_state = touch_val;
-
-  // 2. Following Logic
-  if (motor_running == 1) {
-    int distance = get_distance();
-
-    if (distance > 15 && distance < 40) {
-      // Target is moving away: Follow them
-      motor_forward();
-    } 
-    else if (distance <= 15 && distance > 5) {
-      // Target is in the "Sweet Spot": Stay still
-      motor_stop();
-    }
-    else if (distance <= 5 && distance > 0) {
-      // Target is too close: Back up!
-      motor_backward();
-    }
-    else {
-      // Target is lost or too far (> 40cm): Stop
-      motor_stop();
-    }
-  } else {
-    motor_stop();
-  }
-  
-  delay(50); // Small delay to let the sensor settle
+  delay(10    qqqqq0);
 }
