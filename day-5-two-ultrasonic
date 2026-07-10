@@ -6,12 +6,12 @@
  */
 
 // Motor A Connections
-int in1 = 7;
-int in2 = 6;
+int in1 = 4;
+int in2 = 5;
 
 // Motor B Connections
-int in3 = 5;
-int in4 = 4;
+int in3 = 6;
+int in4 = 7;
 
 // Left ultrasonic sensor
 const int TRIG_LEFT = 12;
