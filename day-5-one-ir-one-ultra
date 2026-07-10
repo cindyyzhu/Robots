@@ -10,8 +10,8 @@ int in4 = 7;
 const int IR = 3;
 
 // Ultrasonic sensor 
-const int TRIG_PIN = 12;
-const int ECHO_PIN = 11;
+const int TRIG_PIN = 11;
+const int ECHO_PIN = 12;
 
 // Most IR obstacle modules output LOW when they detect something.
 // If yours outputs HIGH on detection, change this to false.
