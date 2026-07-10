@@ -1,0 +1,72 @@
+#include <Wire.h>
+
+// Motor A Connections
+int in1 = 7;
+int in2 = 6;
+
+// Motor B Connections
+int in3 = 5;
+int in4 = 4;
+
+// Infrared sensor
+const int IR = A0;
+
+// Motor Forward Function
+void motor_forward(){
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+}
+
+// Motor Stop Function
+void motor_stop(){
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+// Motor right Function
+void motor_right(){
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+// IR Helper Functions
+long get_distance(){
+  int raw_value = analogRead(IR);
+  float voltage = raw_value * (5.0/1023.0);
+  return (13.0 * pow(voltage, -1));
+}
+
+// Motor backwards Function
+void motor_backward(){
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
+}
+ 
+void setup() {
+  // Set all the motor control pins to outputs
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  motor_right();
+  delay(100);
+  int distance = get_distance();
+  if (distance < 40){
+    motor_forward();
+  }
+  delay(100);
+}
