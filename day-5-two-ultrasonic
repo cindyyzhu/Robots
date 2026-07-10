@@ -14,12 +14,12 @@ int in3 = 6;
 int in4 = 7;
 
 // Left ultrasonic sensor
-const int TRIG_LEFT = 12;
-const int ECHO_LEFT = 11;
+const int TRIG_LEFT = 11;
+const int ECHO_LEFT = 12;
 
 // Right ultrasonic sensor
-const int TRIG_RIGHT = 3;
-const int ECHO_RIGHT = 2;
+const int TRIG_RIGHT = 2;
+const int ECHO_RIGHT = 3;
 
 // Detection range in cm (tune for your ring size)
 const int DETECT_DISTANCE_CM = 40;
