@@ -1,0 +1,44 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Set I2C address (commonly 0x27 or 0x3F) and LCD dimensions
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+String inputBuffer = "";
+
+void setup() {
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Waiting...");
+  Serial.println("Type something and press Enter:");
+}
+
+void loop() {
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == '\n') {
+      // On Enter: display the buffered string
+      lcd.clear();
+      displayWrapped(inputBuffer);
+      inputBuffer = "";
+    } else if (c != '\r') {
+      inputBuffer += c;
+    }
+  }
+}
+
+// Wraps text across line 0 and line 1 of the LCD
+void displayWrapped(String text) {
+  if (text.length() <= 16) {
+    lcd.setCursor(0, 0);
+    lcd.print(text);
+  } else {
+    lcd.setCursor(0, 0);
+    lcd.print(text.substring(0, 16));
+    lcd.setCursor(0, 1);
+    lcd.print(text.substring(16, 32));
+  }
+}
