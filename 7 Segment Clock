@@ -1,0 +1,40 @@
+#include <Arduino.h>
+#include <TM1637Display.h>
+
+// Define the connections pins
+#define CLK 2
+#define DIO 3
+
+TM1637Display display(CLK, DIO);
+
+// Set your starting time here (24-hour format)
+int hours = 12;
+int minutes = 0;
+int seconds = 0;
+
+void setup() {
+  display.setBrightness(4); // Set brightness (0x0f is brightest)
+}
+
+void loop() {
+  // Update internal clock
+  seconds++;
+  if (seconds == 60) {
+    seconds = 0;
+    minutes++;
+    if (minutes == 60) {
+      minutes = 0;
+      hours++;
+      if (hours == 24) {
+        hours = 0;
+      }
+    }
+  }
+
+  // Format the time as HHMM and display it with the colon
+  int displayValue = (hours * 100) + minutes;
+  // The third parameter true turns on the clock colon in the center
+  display.showNumberDecEx(displayValue, 0b01000000, true);
+
+  delay(100); // Wait 1 second
+}
