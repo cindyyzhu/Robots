@@ -1,15 +1,7 @@
-int motor1pin2 = 2;
-int motor1pin1 = 3;
+int motor1pin1 = 2;
+int motor1pin2 = 3;
 int motor2pin1 = 4;
 int motor2pin2 = 5;
-// ENA = pin 6 (PWM), ENB = pin 9 (PWM)
-
-// Speed variables (0-255)
-int speed1 = 255;
-int speed2 = 255;
-
-const int touchPin = 6;     // Touch sensor signal pin
-bool isTouched = false;     // Boolean controlled by the touch sensor
 
 void setup() {
   Serial.begin(9600);
@@ -17,64 +9,17 @@ void setup() {
   pinMode(motor1pin2, OUTPUT);
   pinMode(motor2pin1, OUTPUT);
   pinMode(motor2pin2, OUTPUT);
-  // pinMode(6, OUTPUT);  // ENA — Motor 1 speed
-  // pinMode(9, OUTPUT);  // ENB — Motor 2 speed
-
-  pinMode(touchPin, INPUT);
-
 }
 
 void loop(){
-
-  motor1Forward();
-  motor2Forward();
-
-
+  motor_forward();
 }
 
-void motor1Forward() {
+void motor_forward(){
   digitalWrite(motor1pin1, HIGH);
   digitalWrite(motor1pin2, LOW);
-  //analogWrite(6, speed1);
-  Serial.print("Motor 1: FORWARD  PWM="); Serial.println(speed1);
-}
 
-void motor1Reverse() {
-  digitalWrite(motor1pin1, LOW);
-  digitalWrite(motor1pin2, HIGH);
-  //analogWrite(6, speed1);
-  Serial.print("Motor 1: REVERSE  PWM="); Serial.println(speed1);
-}
-
-void motor1Stop() {
-  digitalWrite(motor1pin1, LOW);
-  digitalWrite(motor1pin2, LOW);
-  //analogWrite(6, 0);
-  Serial.println("Motor 1: STOPPED");
-}
-
-void motor2Forward() {
   digitalWrite(motor2pin1, HIGH);
   digitalWrite(motor2pin2, LOW);
-  //analogWrite(9, speed2);
-  Serial.print("Motor 2: FORWARD  PWM="); Serial.println(speed2);
 }
 
-void motor2Reverse() {
-  digitalWrite(motor2pin1, LOW);
-  digitalWrite(motor2pin2, HIGH);
-  //analogWrite(9, speed2);
-  Serial.print("Motor 2: REVERSE  PWM="); Serial.println(speed2);
-}
-
-void motor2Stop() {
-  digitalWrite(motor2pin1, LOW);
-  digitalWrite(motor2pin2, LOW);
-  //analogWrite(9, 0);
-  Serial.println("Motor 2: STOPPED");
-}
-
-void stop(){
-  motor1Stop();
-  motor2Stop();
-}
