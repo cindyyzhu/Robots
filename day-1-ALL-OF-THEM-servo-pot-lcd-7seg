@@ -1,0 +1,47 @@
+#include <Servo.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <TM1637Display.h>
+
+// ---------- Pins ----------
+const int potPin   = A0;   // potentiometer middle pin
+const int servoPin = 9;    // servo signal wire
+#define CLK 2              // TM1637 clock
+#define DIO 3              // TM1637 data
+// LCD uses I2C: SDA = A4, SCL = A5 
+
+// ---------- Objects ----------
+Servo myServo;
+LiquidCrystal_I2C lcd(0x27, 16, 2);   
+TM1637Display display(CLK, DIO);
+
+void setup() {
+  myServo.attach(servoPin);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Servo angle:");
+
+  display.setBrightness(5);   // 0 (dim) to 7 (brightest)
+}
+
+void loop() {
+  int potValue = analogRead(potPin);            // 0–1023
+  int angle    = map(potValue, 0, 1023, 0, 180); // 0–180 degrees
+
+  myServo.write(angle);                          // move servo every loop
+
+  // Only refresh the displays when the angle changes (avoids flicker)
+  static int lastAngle = -1;
+  if (angle != lastAngle) {
+    lcd.setCursor(0, 1);
+    lcd.print(angle);
+    lcd.print(" deg   ");        // trailing spaces clear old digits (e.g. 180 -> 90)
+
+    display.showNumberDec(angle); // same value on the 7-segment
+    lastAngle = angle;
+  }
+
+  delay(15);   // give the servo time to move
+}
