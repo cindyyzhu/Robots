@@ -1,25 +1,32 @@
-int motor1pin1 = 2;
-int motor1pin2 = 3;
-int motor2pin1 = 4;
-int motor2pin2 = 5;
+// Motor A Connections
+int in1 = 2;
+int in2 = 3;
+
+// Motor B Connections
+int in3 = 4;
+int in4 = 5;
+
+void motor_forward(){
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+}
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(motor1pin1, OUTPUT);
-  pinMode(motor1pin2, OUTPUT);
-  pinMode(motor2pin1, OUTPUT);
-  pinMode(motor2pin2, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  digitalWrite(6, HIGH);
+  digitalWrite(7, HIGH);
 }
 
 void loop(){
   motor_forward();
 }
 
-void motor_forward(){
-  digitalWrite(motor1pin1, HIGH);
-  digitalWrite(motor1pin2, LOW);
-
-  digitalWrite(motor2pin1, HIGH);
-  digitalWrite(motor2pin2, LOW);
-}
 
